@@ -25,26 +25,26 @@ import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple
 
 object Hello {
 
-  val LOG: Logger = LoggerFactory.getLogger(getClass)
+    val LOG: Logger = LoggerFactory.getLogger(getClass)
 
-  def main(args: Array[String]) {
-    println("Hello, world")
+    def main(args: Array[String]) {
+      println("Hello, world")
 
-    val conf = ConfigFactory.load();
-    val testParam = conf.getInt("hw1.testParam");
-    println(testParam)
+      val conf = ConfigFactory.load();
+      val testParam = conf.getInt("hw1.testParam");
+      println(testParam)
 
-    LOG.trace("Hello World!")
-    LOG.debug("How are you today?")
-    LOG.info("I am fine.")
-    LOG.warn("I love programming.")
-    LOG.error("I am programming.")
+      LOG.trace("Hello World!")
+      LOG.debug("How are you today?")
+      LOG.info("I am fine.")
+      LOG.warn("I love programming.")
+      LOG.error("I am programming.")
 
-    val num_user = 1 // number of cloud users
-    val calendar = Calendar.getInstance // Calendar whose fields have been initialized with the current date and time.
-    val trace_flag = false // trace events
+      val num_user = 1 // number of cloud users
+      val calendar = Calendar.getInstance // Calendar whose fields have been initialized with the current date and time.
+      val trace_flag = false // trace events
 
-    CloudSim.init(num_user, calendar, trace_flag)
+      CloudSim.init(num_user, calendar, trace_flag)
 
-  }
+    }
 }
