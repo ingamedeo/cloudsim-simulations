@@ -5,21 +5,23 @@
 ## Installation instructions
 This section contains the instructions on how to run the simulations implemented as part of this homework, the recommended procedure is to use IntellJ IDEA with the Scala plugin installed.
 
-1) Open IntellJ IDEA, a welcome screen will be shown, select “Check out from Version Control” and then “Git”.
-2) Enter the following URL and click “Clone”: https://bitbucket.org/abarag4/amedeo_baragiola_hw1.git
-3) When prompted confirm with “Yes”
-4) The SBT import screen will appear, proceed with the default options and confirm with “OK”
-5) Confirm overwriting with “Yes”
-6) You may now go to src/main/scala/com.abarag4/ and run the examples from there. A run configuration is automatically created when you click the green arrow next to the main method of the example you wish to run.
+1. Open IntellJ IDEA, a welcome screen will be shown, select “Check out from Version Control” and then “Git”.
+2. Enter the following URL and click “Clone”: https://bitbucket.org/abarag4/amedeo_baragiola_hw1.git
+3. When prompted confirm with “Yes”
+4. The SBT import screen will appear, proceed with the default options and confirm with “OK”
+5. Confirm overwriting with “Yes”
+6. You may now go to src/main/scala/com.abarag4/ and run the examples from there. A run configuration is automatically created when you click the green arrow next to the main method of the example you wish to run.
 
 Note: The cloudsim framework has been compiled in jar files and added in the lib/ folder of the project. Please note that, although IntellJ IDEA shall recognise the dependencies automatically, this may sometimes fail. When this happens go to “File -> Project Structure”, select “Libraries” on the right-hand side and add the provided jars manually.
 
 #### Alternative: SBT from CLI
 
 If you don’t want to use an IDE, you may run this project from the command line (CLI), proceed as follows:
-1) Type: git clone https://bitbucket.org/abarag4/amedeo_baragiola_hw1.git
-2) Before running the actual code, you may wish to run tests with “sbt clean compile test”
-3) Run the code: sbt clean compile run
+
+1. Type: git clone https://bitbucket.org/abarag4/amedeo_baragiola_hw1.git
+2. Before running the actual code, you may wish to run tests with “sbt clean compile test”
+3. Run the code: sbt clean compile run
+
 
 ## FINISH, remove everything below this line
 
