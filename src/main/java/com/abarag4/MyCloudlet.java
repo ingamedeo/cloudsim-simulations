@@ -13,7 +13,7 @@ public class MyCloudlet extends Cloudlet {
      * Type enum allows us to specify cloudlets of two different types: Mappers and Reducers.
      *
      * */
-    enum Type {
+    public enum Type {
         MAPPER,
         REDUCER
     }

@@ -33,6 +33,10 @@ public class MyBroker extends DatacenterBroker {
         reducerArrayList.addAll(list);
     }
 
+    public ArrayList<MyCloudlet> getReducerArrayList() {
+        return reducerArrayList;
+    }
+
     //todo: added cloudlets get added to wrong VM
     private int vmIndex = 0;
 
@@ -94,7 +98,6 @@ public class MyBroker extends DatacenterBroker {
         // remove submitted cloudlets from waiting list
         getCloudletList().removeAll(successfullySubmitted);
     }
-
 
     /**
      * @param ev SimEvent ev

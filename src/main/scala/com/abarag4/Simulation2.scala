@@ -1,24 +1,19 @@
 package com.abarag4
 
 import java.text.DecimalFormat
-import java.util
 import java.util.Calendar
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.cloudbus.cloudsim.core.CloudSim
+import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter
 import org.cloudbus.cloudsim.provisioners.{BwProvisionerSimple, PeProvisionerSimple, RamProvisionerSimple}
-import org.cloudbus.cloudsim.{Cloudlet, CloudletSchedulerSpaceShared, CloudletSchedulerTimeShared, Datacenter, DatacenterBroker, DatacenterCharacteristics, Host, HostDynamicWorkload, Pe, Storage, UtilizationModelFull, Vm, VmAllocationPolicySimple, VmSchedulerSpaceShared, VmSchedulerTimeShared}
+import org.cloudbus.cloudsim._
 import org.slf4j.{Logger, LoggerFactory}
 
-import scala.jdk.javaapi.CollectionConverters.asScala
-import scala.jdk.javaapi.CollectionConverters.asJava
-import org.cloudbus.cloudsim.NetworkTopology
-import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter
-import org.cloudbus.cloudsim.power.{PowerHost, PowerHostUtilizationHistory}
-import org.cloudbus.cloudsim.power.models.PowerModelLinear
+import scala.jdk.javaapi.CollectionConverters.{asJava, asScala}
 
 /**
- * This is the first Simulation provided.
+ * This is the second Simulation provided.
  *
  * All simulations show a run of a Map/Reduce algorithm implementation as further detailed in the README.md file.
  *
@@ -42,7 +37,7 @@ import org.cloudbus.cloudsim.power.models.PowerModelLinear
  *
  */
 
-object Simulation1 {
+object Simulation2 {
 
   val SIM = "simulation1";
   
@@ -65,8 +60,6 @@ object Simulation1 {
     val trace_flag = conf.getBoolean("trace_flag")
     val num_vms = conf.getInt(SIM+".num_vms")
     val num_dcs = conf.getInt(SIM+".num_dcs")
-    val num_mappers = conf.getInt(SIM+".num_mappers")
-    val num_reducers = conf.getInt(SIM+".num_reducers")
 
     //Init cloudsim framework
     CloudSim.init(num_user, calendar, trace_flag)
@@ -93,8 +86,8 @@ object Simulation1 {
     * Two different types of Cloudlets are creates, Mappers and Reducers.
     * Please see createCloudlet method for additional info.
      */
-    val mappers = createCloudlet(brokerId, num_mappers, 0, MyCloudlet.Type.MAPPER)
-    val reducers = createCloudlet(brokerId, num_reducers, num_mappers, MyCloudlet.Type.REDUCER)
+    val mappers = createCloudlet(brokerId, 12, 0, MyCloudlet.Type.MAPPER)
+    val reducers = createCloudlet(brokerId, 4, 13, MyCloudlet.Type.REDUCER)
 
     /*
      * This is a simulation specific thing.
@@ -300,8 +293,8 @@ object Simulation1 {
     val pesNumber = conf.getInt(SIM+".vm.pesNumber") // number of cpus
     val vmm = conf.getString(SIM+".vm.vmm") // VMM name
 
-    // create VM, the CloudletSchedulerTimeShared policy
-    val vm = new Vm(startId, userId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared)
+    // create VM, the CloudletSchedulerSpaceShared policy
+    val vm = new Vm(startId, userId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerSpaceShared)
     LOG.info("VM"+startId+" (mips="+mips+",size="+size+",ram="+ram+",bw="+bw+",numCPUS="+pesNumber+") created")
 
     //Add VM to list
@@ -319,7 +312,7 @@ object Simulation1 {
    * @return
    */
 
-  def createVM(userId: Int, vms: Int) : List[Vm] = {
+  private def createVM(userId: Int, vms: Int) : List[Vm] = {
 
     val vmlist = scala.collection.mutable.ListBuffer.empty[Vm]
 
@@ -332,7 +325,7 @@ object Simulation1 {
    * This method initializes an instance of MyBroker.
    * @return
    */
-  def createBroker() : MyBroker = {
+  private def createBroker() : MyBroker = {
     val broker = new MyBroker("Broker")
     return broker
   }
@@ -391,7 +384,7 @@ object Simulation1 {
 
   val indent = "    "
   val dft = new DecimalFormat("###.##")
-  private def printSingleResultLine(cloudlet: MyCloudlet): Unit = {
+  private def printSingleResultLine(cloudlet: Cloudlet): Unit = {
     if (cloudlet.getCloudletStatus == Cloudlet.SUCCESS) {
 
       val costPerSec = cloudlet.getCostPerSec(cloudlet.getResourceId) *  cloudlet.getActualCPUTime()
@@ -399,7 +392,7 @@ object Simulation1 {
       //LOG.info("costPerSec: "+costPerSec)
       //LOG.info("ramUtilization: "+ramUtilization)
 
-      LOG.info(indent + cloudlet.getCloudletId + indent + indent + "  SUCCESS" + indent + indent + cloudlet.getResourceId + indent + indent + indent + cloudlet.getVmId + indent + indent + dft.format(cloudlet.getActualCPUTime) + indent + indent + dft.format(cloudlet.getExecStartTime) + indent + indent + indent + dft.format(cloudlet.getFinishTime) + indent + indent + indent + dft.format(cloudlet.getSubmissionTime) + indent + indent + indent + indent + indent + dft.format(cloudlet.getCostPerSec*cloudlet.getActualCPUTime) + indent + indent + indent + cloudlet.getType)
+      LOG.info(indent + cloudlet.getCloudletId + indent + indent + "  SUCCESS" + indent + indent + cloudlet.getResourceId + indent + indent + indent + cloudlet.getVmId + indent + indent + dft.format(cloudlet.getActualCPUTime) + indent + indent + dft.format(cloudlet.getExecStartTime) + indent + indent + indent + dft.format(cloudlet.getFinishTime) + indent + indent + indent + dft.format(cloudlet.getSubmissionTime) + indent + indent + indent + dft.format(cloudlet.getCostPerSec*cloudlet.getActualCPUTime))
     } else {
       LOG.info(indent + cloudlet.getCloudletId + indent + indent)
     }
@@ -408,7 +401,7 @@ object Simulation1 {
   private def printCloudletList(list: List[MyCloudlet]): Unit = {
     LOG.info("");
     LOG.info("========== OUTPUT ==========")
-    LOG.info("Cloudlet ID" + indent + "STATUS" + indent + "Data center ID" + indent + "VM ID" + indent + "Time" + indent + "Start Time" + indent + "Finish Time" + indent + "Submission Time" + indent + "Total cost of cloudlet" + indent + "Cloudlet type")
+    LOG.info("Cloudlet ID" + indent + "STATUS" + indent + "Data center ID" + indent + "VM ID" + indent + "Time" + indent + "Start Time" + indent + "Finish Time" + indent + "Submission Time" + indent + "Total cost of cloudlet")
 
     //Call list item print function (functional programming technique)
     list.foreach(printSingleResultLine)
