@@ -1,10 +1,10 @@
 import java.util.Calendar
 
-import com.abarag4.Simulation1.{SIM, conf, createBroker, createCloudlet}
-import com.abarag4.{MyCloudlet, Simulation1}
+import com.abarag4.{MyCloudlet}
+import com.abarag4.Simulation1.{createBroker, createCloudlet, createDatacenters, createVM}
 import com.typesafe.config.{Config, ConfigFactory}
-import org.cloudbus.cloudsim.core.CloudSim
-import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter
+import org.cloudbus.cloudsim.Vm
+import org.cloudbus.cloudsim.core.{CloudSim, CloudSimTags, SimEvent}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -64,6 +64,43 @@ class MyBrokerTest extends FunSuite with BeforeAndAfter {
 
     val submittedCloudlets = broker.getReducerArrayList
     submittedCloudlets.forEach((e:MyCloudlet) => testCloudlet(e, MyCloudlet.Type.REDUCER))
+  }
+
+  /**
+   * This test is to show how every 3 mappers that finish the job, a new reducer is allocated.
+   * For this purpose a sample simulation with 1 DC, 1 VM and only 3 mappers is run, at the end it is checked that the last submitted cloudlet is a REDUCER.
+   * */
+  test("MyBroker.processEvent") {
+
+    LOG.debug("Testing processEvent method..")
+
+    //Recursive call for datacenter generation
+    val datacenters = createDatacenters(1)
+
+    //Broker initialization
+    val broker = createBroker()
+    val brokerId = broker.getId
+
+    //Recursive call for VM creation
+    val vmlist = createVM(brokerId, 3)
+    //Set list of available VMs on broker
+    broker.submitVmList(asJava[Vm](vmlist))
+
+    val mappers = createCloudlet(brokerId, 3, 0, MyCloudlet.Type.MAPPER)
+    val reducers = createCloudlet(brokerId, 1, 3, MyCloudlet.Type.REDUCER)
+
+    broker.submitMapperList(asJava(mappers))
+    broker.submitReducerList(asJava(reducers))
+
+    CloudSim.startSimulation()
+    CloudSim.stopSimulation()
+
+    val recCloudlets = broker.getCloudletReceivedList
+
+    val lastCloudlet = recCloudlets.get(recCloudlets.size()-1).asInstanceOf[MyCloudlet]
+
+    LOG.debug("Check last cloudlet submitted is a REDUCER..")
+    assert(lastCloudlet.getType==MyCloudlet.Type.REDUCER)
   }
 
 }
