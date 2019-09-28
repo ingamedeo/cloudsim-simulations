@@ -67,7 +67,7 @@ class MyBrokerTest extends FunSuite with BeforeAndAfter {
   }
 
   /**
-   * This test is to show how every 3 mappers that finish the job, a new reducer is allocated.
+   * This test is to show the functioning on the processEvent method.
    * For this purpose a sample simulation with 1 DC, 1 VM and only 3 mappers is run, at the end it is checked that the last submitted cloudlet is a REDUCER.
    * */
   test("MyBroker.processEvent") {

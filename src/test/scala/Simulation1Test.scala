@@ -13,7 +13,7 @@ class Simulation1Test extends FunSuite with BeforeAndAfter {
   val SIM = "simulation1";
 
   //Initialize Config and Logger objects from 3rd party libraries
-  val conf: Config = ConfigFactory.load()
+  val conf: Config = ConfigFactory.load(SIM+".conf")
   val LOG: Logger = LoggerFactory.getLogger(getClass)
 
   before {

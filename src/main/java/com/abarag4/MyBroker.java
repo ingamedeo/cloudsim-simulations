@@ -86,6 +86,13 @@ public class MyBroker extends DatacenterBroker {
                         cloudlet.getCloudletId(), " to VM #", vm.getId());
             }
 
+            double diskSpeed = 0;
+
+            //todo: finish documenting what this does
+            if (vm.getHost() instanceof MyHost) {
+                diskSpeed = ((MyHost)vm.getHost()).getDiskSpeed();
+            }
+
             /*
             * Keep track inside cloudlets of which Host they run on. This will be useful later when scheduling them.
             * */
@@ -99,17 +106,17 @@ public class MyBroker extends DatacenterBroker {
                     ((MyCloudlet) cloudlet).setHost(mpHost);
                     cloudlet.setVmId(mpHost.getVmList().get(0).getId());
 
+                    /*
+                    * If all mappers are on the same host, then there is no delay in starting the reducers because no data needs to be transferred.
+                    * */
+                    if (haveSameHost(mapperIds)) {
+                        diskSpeed = 0;
+                    }
+
                 } else {
                     ((MyCloudlet) cloudlet).setHost(vm.getHost());
                     cloudlet.setVmId(vm.getId());
                 }
-            }
-
-            double diskSpeed = 0;
-
-            //todo: finish documenting what this does
-            if (vm.getHost() instanceof MyHost) {
-                diskSpeed = ((MyHost)vm.getHost()).getDiskSpeed();
             }
 
             send(getVmsToDatacentersMap().get(vm.getId()), cloudlet.getCloudletFileSize()*diskSpeed, CloudSimTags.CLOUDLET_SUBMIT, cloudlet);
@@ -121,6 +128,24 @@ public class MyBroker extends DatacenterBroker {
 
         // remove submitted cloudlets from waiting list
         getCloudletList().removeAll(successfullySubmitted);
+    }
+
+    /*
+    * This method checks that all mappers in this list run on the same host
+    * */
+    private boolean haveSameHost(List<Integer> mapperIds) {
+        Host host = null;
+        for (Integer id : mapperIds) {
+
+            Host currentHost = handledMappers.get(id).getHost();
+
+            if (host==null) {
+                host = currentHost;
+            } else if (host!=currentHost) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private Map<Host, List<Integer>> toAllocationMap(Map<Integer, MyCloudlet> cloudlets) {
@@ -199,6 +224,10 @@ public class MyBroker extends DatacenterBroker {
                                     LOG.debug("--> Now submitting reducer for MAPPERS: "+mapperIds + ", countRet is now: "+ countRet);
                                     readyReducer.setAssociatedMappers(mapperIds);
 
+                                    /*
+                                    * Remove mappers with already processed output from finishedMappers list.
+                                    * Add them to handedMappers so later they can be retrieved by id.
+                                    * */
                                     for (Integer id : mapperIds) {
                                         handledMappers.put(id, finishedMappers.get(id));
                                         finishedMappers.remove(id);
