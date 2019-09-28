@@ -74,7 +74,15 @@ Configuration options for the following entities are provided:
 
 Those are valid in the context of a certain simulation.
 
-## Simulated infrastructure
+## Implemented policy
+In this section the implemented policy is described in detail.
+Firstly, it is important to note that a new parameter was added to the host entity, the disk speed. This allows us to model the delay in loading data from disk when starting a map/reduce job.
+
+Upon a new map/reduce job submission we have that data chunks need to be transferred to the hosts on which the VMs run to be processed.
+
+The implemented policy tried to reduce the delay caused by a limited disk speed by avoiding excessive data transfers between hosts; let's consider a scenario to better understand how this is implemented.
+
+Let's say we have
 
 
 ## FINISH, remove everything below this line
