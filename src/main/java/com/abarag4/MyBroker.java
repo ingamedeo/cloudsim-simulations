@@ -1,9 +1,6 @@
 package com.abarag4;
 
-import org.cloudbus.cloudsim.Cloudlet;
-import org.cloudbus.cloudsim.DatacenterBroker;
-import org.cloudbus.cloudsim.Log;
-import org.cloudbus.cloudsim.Vm;
+import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.SimEvent;
@@ -11,14 +8,26 @@ import org.cloudbus.cloudsim.lists.VmList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MyBroker extends DatacenterBroker {
     
     private Logger LOG = LoggerFactory.getLogger(MyBroker.class);
     private ArrayList<MyCloudlet> reducerArrayList = null;
     private int countRet = 0;
-    private static final int MAP_RED_RATIO = 3;
+    private int countRetMax = 0;
+
+    /*
+    * This Map contains the Mappers that have finished executing, but their result still needs to be processed by a reducer.
+    * */
+    private Map<Integer, MyCloudlet> finishedMappers = new HashMap<>();
+
+    /*
+     * This Map contains the Mappers that have finished executing and their result has been already processed by a reducer.
+     * */
+    private Map<Integer, MyCloudlet> handledMappers = new HashMap<>();
 
     public MyBroker(String name) throws Exception {
         super(name);
@@ -27,6 +36,7 @@ public class MyBroker extends DatacenterBroker {
 
     public void submitMapperList(List<? extends MyCloudlet> list) {
         super.submitCloudletList(list);
+        countRetMax = list.size();
     }
 
     public void submitReducerList(List<? extends MyCloudlet> list) {
@@ -76,11 +86,25 @@ public class MyBroker extends DatacenterBroker {
                         cloudlet.getCloudletId(), " to VM #", vm.getId());
             }
 
-            //MyCPUUtilizationModel cpuUtilizationModel = new MyCPUUtilizationModel(cloudlet.getCloudletFileSize(), cloudlet.get)
-            //Set CPU utilization model, this simulates the CPU being idle while data are loaded into the local storage disk.
-            //cloudlet.setUtilizationModelCpu(cpuUtilizationModel);
+            /*
+            * Keep track inside cloudlets of which Host they run on. This will be useful later when scheduling them.
+            * */
+            if (cloudlet instanceof MyCloudlet) {
 
-            cloudlet.setVmId(vm.getId());
+                // This cloudlet is a reducer, therefore we will now schedule it on the same host as its mappers
+                if (((MyCloudlet) cloudlet).getType()== MyCloudlet.Type.REDUCER) {
+                    List<Integer> mapperIds = ((MyCloudlet) cloudlet).getAssociatedMappers();
+
+                    Host mpHost = handledMappers.get(mapperIds.get(0)).getHost();
+                    ((MyCloudlet) cloudlet).setHost(mpHost);
+                    cloudlet.setVmId(mpHost.getVmList().get(0).getId());
+
+                } else {
+                    ((MyCloudlet) cloudlet).setHost(vm.getHost());
+                    cloudlet.setVmId(vm.getId());
+                }
+            }
+
             double diskSpeed = 0;
 
             //todo: finish documenting what this does
@@ -99,14 +123,37 @@ public class MyBroker extends DatacenterBroker {
         getCloudletList().removeAll(successfullySubmitted);
     }
 
+    private Map<Host, List<Integer>> toAllocationMap(Map<Integer, MyCloudlet> cloudlets) {
+
+        Map<Host, List<Integer>> allocHost = new HashMap<>();
+
+        for (MyCloudlet myCloudlet : cloudlets.values()) {
+            Host host = myCloudlet.getHost();
+            /*
+             * Count the number of mappers allocated on a certain host.
+             * */
+            if (allocHost.containsKey(host)) {
+                List<Integer> myCloudletList = allocHost.get(host);
+                allocHost.get(host).add(myCloudlet.getCloudletId());
+                allocHost.replace(host, myCloudletList);
+            } else {
+                List<Integer> myCloudletList = new ArrayList<>();
+                myCloudletList.add(myCloudlet.getCloudletId());
+                allocHost.put(host, myCloudletList);
+            }
+        }
+
+        return allocHost;
+    }
+
     /**
      * @param ev SimEvent ev
      *
      * This method receives events which outline the different stages of the simulation.
      *
      * The changes made here allow for the simulation of a map/reduce architecture; in particular this method takes into account 2 different types
-     * of cloudlets (Mappers and Reducers). The scheduling policy is changed, in particular, every 3 mappers that finish the execution a new reducer is started
-     * that operates on the results of the mappers. (This provides some sort of data dependency)
+     * of cloudlets (Mappers and Reducers).
+     * The scheduling policy assured data locality which prevents delay in loading cloudlets due to limited disk speed.
      *
      */
     @Override
@@ -119,22 +166,74 @@ public class MyBroker extends DatacenterBroker {
                 if (obj!=null && obj instanceof MyCloudlet) {
                     MyCloudlet current = (MyCloudlet) ev.getData();
                     if (current.getType() == MyCloudlet.Type.MAPPER) {
-                        countRet++; //If a Mapper cloudlet finishes, keep track of this.
+                        countRet++; //When a Mapper cloudlet finishes, keep track of this.
+                        finishedMappers.put(current.getCloudletId(), current); //Add this mapper to list of finished mappers
                     }
 
-                    //now submit reducers
-                    if (countRet==MAP_RED_RATIO) {
-                        LOG.debug("countRet reached. Submitting new reducers.");
-                        //There are still reducers ready to submit. Submit one and remove from pending list.
+                    //There are still reducers ready to submit. Submit one and remove from pending list.
                         if (reducerArrayList.size()>0) {
-                            LOG.debug("Submitted cloudlet with ID: "+reducerArrayList.get(0).getCloudletId());
-                            getCloudletList().add(reducerArrayList.get(0)); //Add to pending list
-                            reducerArrayList.remove(0); //Remove from waiting list
+
+                            /*
+                            * Now we need to decide where to submit this reducer.
+                            *
+                            * Let's cycle over all finishedMappers to find out where they were allocated.
+                            *
+                            * */
+
+                            /*
+                            * Generate an allocation Map of mappers that have finished executing
+                            * */
+                            Map<Host, List<Integer>> allocHost = toAllocationMap(finishedMappers);
+                            for (Host host : allocHost.keySet()) {
+
+                                MyCloudlet readyReducer = reducerArrayList.get(0);
+
+                                List<Integer> mapperIds = allocHost.get(host);
+
+                                //LOG.debug("AllocationMap | hostId: "+host.getId()+", numAlloc: "+allocHost.get(host));
+
+                                /*
+                                * If at least 2 mappers are done and on the *same* host, we can submit a reducer for them.
+                                * */
+                                if (allocHost.get(host).size()>=2) {
+                                    LOG.debug("--> Now submitting reducer for MAPPERS: "+mapperIds + ", countRet is now: "+ countRet);
+                                    readyReducer.setAssociatedMappers(mapperIds);
+
+                                    for (Integer id : mapperIds) {
+                                        handledMappers.put(id, finishedMappers.get(id));
+                                        finishedMappers.remove(id);
+                                    }
+
+                                    LOG.debug("Submitted cloudlet with ID: "+readyReducer.getCloudletId());
+                                    getCloudletList().add(readyReducer); //Add to pending list
+                                    reducerArrayList.remove(0); //Remove from waiting list
+                                }
+
+                                LOG.debug("Mappers n. waiting to be reduced is now: "+finishedMappers.keySet());
+                            }
+
+                            /*
+                            * This means all mappers have been returned, but some are mismatched
+                            * -> they run on different hosts, so we now need to move data and submit the remaining reducers
+                            * */
+                            if (countRet==countRetMax && finishedMappers.size()>0 && reducerArrayList.size()>0) {
+
+                                MyCloudlet readyReducer = reducerArrayList.get(0);
+
+                                LOG.debug("--> Submitting remaining reducers ("+finishedMappers.keySet()+")");
+                                List<Integer> leftOverMappers = new ArrayList<>(finishedMappers.keySet());
+                                readyReducer.setAssociatedMappers(leftOverMappers);
+
+                                handledMappers.putAll(finishedMappers);
+                                finishedMappers.clear();
+
+                                LOG.debug("Submitted cloudlet with ID: "+readyReducer.getCloudletId());
+                                getCloudletList().add(readyReducer); //Add to pending list
+                                reducerArrayList.remove(0); //Remove from waiting list
+                            }
                         }
 
                         submitCloudlets();
-                        countRet=0; //Reset mapper counter
-                    }
 
                     processCloudletReturn(ev);
 

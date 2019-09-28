@@ -88,18 +88,20 @@ class Simulation1Test extends FunSuite with BeforeAndAfter {
 
   test("Simulation1.createCloudlet") {
 
+    val num_cl = 10
+
     //Broker initialization
     val broker = Simulation1.createBroker()
     val brokerId = broker.getId
 
-    val mappers = createCloudlet(brokerId, 10, 0, MyCloudlet.Type.MAPPER)
-    val reducers = createCloudlet(brokerId, 10, 0, MyCloudlet.Type.REDUCER)
+    val mappers = createCloudlet(brokerId, num_cl, 0, MyCloudlet.Type.MAPPER)
+    val reducers = createCloudlet(brokerId, num_cl, 0, MyCloudlet.Type.REDUCER)
 
     LOG.debug("Testing mappers not empty..")
-    assert(mappers.nonEmpty)
+    assert(mappers.size == num_cl)
 
     LOG.debug("Testing reducers not empty..")
-    assert(reducers.nonEmpty)
+    assert(reducers.size == num_cl)
 
     LOG.debug("Testing cloudlets type..")
     //Testing only first one as they are all created equal

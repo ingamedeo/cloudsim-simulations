@@ -15,7 +15,7 @@ class MyBrokerTest extends FunSuite with BeforeAndAfter {
   val SIM = "simulation1";
 
   //Initialize Config and Logger objects from 3rd party libraries
-  val conf: Config = ConfigFactory.load("application.conf")
+  val conf: Config = ConfigFactory.load("simulation1.conf")
   val LOG: Logger = LoggerFactory.getLogger(getClass)
 
   before {

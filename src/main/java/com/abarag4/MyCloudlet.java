@@ -1,6 +1,7 @@
 package com.abarag4;
 
 import org.cloudbus.cloudsim.Cloudlet;
+import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.UtilizationModel;
 
 import java.util.List;
@@ -19,6 +20,8 @@ public class MyCloudlet extends Cloudlet {
     }
 
     private Type type = null;
+    private Host host = null;
+    private List<Integer> associatedMappers = null;
 
     public MyCloudlet(int cloudletId, long cloudletLength, int pesNumber, long cloudletFileSize, long cloudletOutputSize, UtilizationModel utilizationModelCpu, UtilizationModel utilizationModelRam, UtilizationModel utilizationModelBw) {
         super(cloudletId, cloudletLength, pesNumber, cloudletFileSize, cloudletOutputSize, utilizationModelCpu, utilizationModelRam, utilizationModelBw);
@@ -34,6 +37,22 @@ public class MyCloudlet extends Cloudlet {
 
     public MyCloudlet(int cloudletId, long cloudletLength, int pesNumber, long cloudletFileSize, long cloudletOutputSize, UtilizationModel utilizationModelCpu, UtilizationModel utilizationModelRam, UtilizationModel utilizationModelBw, boolean record) {
         super(cloudletId, cloudletLength, pesNumber, cloudletFileSize, cloudletOutputSize, utilizationModelCpu, utilizationModelRam, utilizationModelBw, record);
+    }
+
+    public List<Integer> getAssociatedMappers() {
+        return associatedMappers;
+    }
+
+    public void setAssociatedMappers(List<Integer> associatedMappers) {
+        this.associatedMappers = associatedMappers;
+    }
+
+    public Host getHost() {
+        return host;
+    }
+
+    public void setHost(Host host) {
+        this.host = host;
     }
 
     public Type getType() {

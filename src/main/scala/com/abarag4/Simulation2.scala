@@ -3,6 +3,7 @@ package com.abarag4
 import java.text.DecimalFormat
 import java.util.Calendar
 
+import com.abarag4.Simulation1.SIM
 import com.typesafe.config.{Config, ConfigFactory}
 import org.cloudbus.cloudsim.core.CloudSim
 import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter
@@ -17,7 +18,7 @@ import scala.jdk.javaapi.CollectionConverters.{asJava, asScala}
  *
  * All simulations show a run of a Map/Reduce algorithm implementation as further detailed in the README.md file.
  *
- * The code is structured in such a way that all parameters can be specified from the application.conf file.
+ * The code is structured in such a way that all parameters can be specified from the simulation1.conf file.
  *
  * The code entry point is the main method.
  *
@@ -39,10 +40,10 @@ import scala.jdk.javaapi.CollectionConverters.{asJava, asScala}
 
 object Simulation2 {
 
-  val SIM = "simulation1";
+  val SIM = "simulation2";
   
   //Initialize Config and Logger objects from 3rd party libraries
-  val conf: Config = ConfigFactory.load()
+  val conf: Config = ConfigFactory.load(SIM+".conf")
   val LOG: Logger = LoggerFactory.getLogger(getClass)
 
   def main(args: Array[String]): Unit = {
@@ -400,7 +401,7 @@ object Simulation2 {
 
   private def printCloudletList(list: List[MyCloudlet]): Unit = {
     LOG.info("");
-    LOG.info("========== OUTPUT ==========")
+    LOG.info("========== OUTPUT (CloudletSchedulerSpaceShared) ==========")
     LOG.info("Cloudlet ID" + indent + "STATUS" + indent + "Data center ID" + indent + "VM ID" + indent + "Time" + indent + "Start Time" + indent + "Finish Time" + indent + "Submission Time" + indent + "Total cost of cloudlet")
 
     //Call list item print function (functional programming technique)

@@ -2,6 +2,12 @@
 #### Politecnico di Milano
 #### University of Illinois at Chicago
 
+## Introduction
+
+This homework consists in creating different simulations on multiple datacenters and analyze the results obtained.
+
+The simulation code has been written in Scala and can be compiled using SBT.
+
 ## Installation instructions
 This section contains the instructions on how to run the simulations implemented as part of this homework, the recommended procedure is to use IntellJ IDEA with the Scala plugin installed.
 
@@ -21,6 +27,54 @@ If you don’t want to use an IDE, you may run this project from the command lin
 1. Type: git clone https://bitbucket.org/abarag4/amedeo_baragiola_hw1.git
 2. Before running the actual code, you may wish to run tests with “sbt clean compile test”
 3. Run the code: sbt clean compile run
+
+<b>Note:</b> When you run either of the "sbt clean compile *" commands, you will be prompted to make a choice, please read the following section for more details.
+
+## Project structure
+
+In this section the project structure is described.
+
+#### Simulations
+
+The following Simulations are provided:
+- Simulation1: 
+
+#### Tests
+
+The following test classes are provided:
+- Simulation1Test
+- MyBrokerTest
+
+###### Simulation1Test
+The following methods are tested:
+- createDatacenter: the test checks that the created Datacenter is not null and that it contains the correct number of hosts.
+- createDatacenters: the test checks that upon a recursive call to this method the right number of datacenters is created.
+- createHostImpl: the test checks that upon a recursive call to this method the right number of hosts is created.
+- createVM: the test checks that upon a recursive call to this method the right number of VMs is created.
+- createCloudlet: the test checks that upon a recursive call to this method, the cloudlets created are of the right type and number.
+
+###### MyBrokerTest
+The following methods are tested:
+- submitMapperList: the test checks that all mappers are actually submitted to the broker and that the CloudLet type (Mapper) is still correct when retrieved.
+- submitReducerList: the test checks that all reducers are actually submitted to the broker - and therefore queued for execution - and that the CloudLet type (Reducer) is still correct when retrieved.
+- processEvent: the test runs a mock simulation with 3 mappers and 1 reducer and tests for the behaviour of the implemented submission policy.
+In particular it is tested that once 3 mappers finish execution, a new reducer is started and ready for execution.
+
+## Configuration parameters
+The use of hard-coded values is limited in the source code as they limit code re-use and readability; instead a configuration file contains all the configuration parameters for the simulations.
+The configuration file is "application.conf".
+
+Configuration blocks are identified by curly braces and they can be nested if some configuration options are valid only within a certain context.
+
+Configuration options for the following entities are provided:
+- Datacenter
+- Host
+- VM
+- Cloudlet
+
+Those are valid in the context of a certain simulation.
+
+## Simulated infrastructure
 
 
 ## FINISH, remove everything below this line

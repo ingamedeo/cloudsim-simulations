@@ -22,7 +22,7 @@ import org.cloudbus.cloudsim.power.models.PowerModelLinear
  *
  * All simulations show a run of a Map/Reduce algorithm implementation as further detailed in the README.md file.
  *
- * The code is structured in such a way that all parameters can be specified from the application.conf file.
+ * The code is structured in such a way that all parameters can be specified from the simulation1.conf file.
  *
  * The code entry point is the main method.
  *
@@ -47,7 +47,7 @@ object Simulation1 {
   val SIM = "simulation1";
   
   //Initialize Config and Logger objects from 3rd party libraries
-  val conf: Config = ConfigFactory.load()
+  val conf: Config = ConfigFactory.load(SIM+".conf")
   val LOG: Logger = LoggerFactory.getLogger(getClass)
 
   def main(args: Array[String]): Unit = {
@@ -351,25 +351,6 @@ object Simulation1 {
     val outputSize = conf.getInt(SIM+".cloudlet.outputSize")
     val utilizationModel = new UtilizationModelFull
 
-    //Todo: this is dead code, remove it
-    /*
-    if (startId % 5 == 0 && startId!=0) {
-      val cloudlet: MyCloudlet = new MyCloudlet(startId, length*2, pesNumber, fileSize, outputSize, utilizationModel, new OurUtilizationModel, utilizationModel)
-      LOG.info("Cloudlet"+startId+" (length="+length+",fileSize="+fileSize+",outputSize="+outputSize+") created")
-      cloudlet.setUserId(userId)
-      cloudlet.setType(cloudletType) //Set custom type
-
-      cloudletList += cloudlet
-    } else {
-      val cloudlet: MyCloudlet = new MyCloudlet(startId, length, pesNumber, fileSize, outputSize, utilizationModel, new OurUtilizationModel, utilizationModel)
-      LOG.info("Cloudlet"+startId+" (length="+length+",fileSize="+fileSize+",outputSize="+outputSize+") created")
-      cloudlet.setUserId(userId)
-      cloudlet.setType(cloudletType) //Set custom type
-
-      cloudletList += cloudlet
-    }
-    */
-
     val cloudlet: MyCloudlet = new MyCloudlet(startId, length*2, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel)
     LOG.info("Cloudlet"+startId+" (length="+length+",fileSize="+fileSize+",outputSize="+outputSize+") created")
     cloudlet.setUserId(userId)
@@ -399,7 +380,12 @@ object Simulation1 {
       //LOG.info("costPerSec: "+costPerSec)
       //LOG.info("ramUtilization: "+ramUtilization)
 
-      LOG.info(indent + cloudlet.getCloudletId + indent + indent + "  SUCCESS" + indent + indent + cloudlet.getResourceId + indent + indent + indent + cloudlet.getVmId + indent + indent + dft.format(cloudlet.getActualCPUTime) + indent + indent + dft.format(cloudlet.getExecStartTime) + indent + indent + indent + dft.format(cloudlet.getFinishTime) + indent + indent + indent + dft.format(cloudlet.getSubmissionTime) + indent + indent + indent + indent + indent + dft.format(cloudlet.getCostPerSec*cloudlet.getActualCPUTime) + indent + indent + indent + cloudlet.getType)
+      if (cloudlet.getType==MyCloudlet.Type.REDUCER) {
+        LOG.info(indent + cloudlet.getCloudletId + indent + indent + "  SUCCESS" + indent + indent + cloudlet.getResourceId + indent + indent + indent + cloudlet.getVmId + indent + indent + dft.format(cloudlet.getActualCPUTime) + indent + indent + dft.format(cloudlet.getExecStartTime) + indent + indent + indent + dft.format(cloudlet.getFinishTime) + indent + indent + indent + dft.format(cloudlet.getSubmissionTime) + indent + indent + indent + indent + indent + dft.format(costPerSec) + indent + indent + indent + cloudlet.getType+"("+cloudlet.getAssociatedMappers+")" + indent + indent + indent + cloudlet.getHost.getId)
+      } else {
+        LOG.info(indent + cloudlet.getCloudletId + indent + indent + "  SUCCESS" + indent + indent + cloudlet.getResourceId + indent + indent + indent + cloudlet.getVmId + indent + indent + dft.format(cloudlet.getActualCPUTime) + indent + indent + dft.format(cloudlet.getExecStartTime) + indent + indent + indent + dft.format(cloudlet.getFinishTime) + indent + indent + indent + dft.format(cloudlet.getSubmissionTime) + indent + indent + indent + indent + indent + dft.format(costPerSec) + indent + indent + indent + cloudlet.getType  + indent + indent + indent + indent + indent + cloudlet.getHost.getId)
+      }
+
     } else {
       LOG.info(indent + cloudlet.getCloudletId + indent + indent)
     }
@@ -407,8 +393,8 @@ object Simulation1 {
 
   private def printCloudletList(list: List[MyCloudlet]): Unit = {
     LOG.info("");
-    LOG.info("========== OUTPUT ==========")
-    LOG.info("Cloudlet ID" + indent + "STATUS" + indent + "Data center ID" + indent + "VM ID" + indent + "Time" + indent + "Start Time" + indent + "Finish Time" + indent + "Submission Time" + indent + "Total cost of cloudlet" + indent + "Cloudlet type")
+    LOG.info("========== OUTPUT (CloudletSchedulerTimeShared) ==========")
+    LOG.info("Cloudlet ID" + indent + "STATUS" + indent + "Data center ID" + indent + "VM ID" + indent + "Time" + indent + "Start Time" + indent + "Finish Time" + indent + "Submission Time" + indent + "Total cost of cloudlet" + indent + "Cloudlet type" + indent + "Host ID")
 
     //Call list item print function (functional programming technique)
     list.foreach(printSingleResultLine)
