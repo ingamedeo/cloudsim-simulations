@@ -14,11 +14,11 @@ import org.slf4j.{Logger, LoggerFactory}
 import scala.jdk.javaapi.CollectionConverters.{asJava, asScala}
 
 /**
- * This is the second Simulation provided with the default cloudlet/VM allocation policy.
+ * This is the second Simulation provided.
  *
  * All simulations show a run of a Map/Reduce algorithm implementation as further detailed in the README.md file.
  *
- * The code is structured in such a way that all parameters can be specified from the simulation2.conf file.
+ * The code is structured in such a way that all parameters can be specified from the simulation2low.conf file.
  *
  * The code entry point is the main method.
  *
@@ -38,9 +38,9 @@ import scala.jdk.javaapi.CollectionConverters.{asJava, asScala}
  *
  */
 
-object Simulation2b {
+object Simulation2low {
 
-  val SIM = "simulation2"
+  val SIM = "simulation2low";
   
   //Initialize Config and Logger objects from 3rd party libraries
   val conf: Config = ConfigFactory.load(SIM+".conf")
@@ -95,7 +95,7 @@ object Simulation2b {
     /*
      * This is a simulation specific thing.
      * Two different types of Cloudlets can be submitted to the broker. Those are handled completely differently.
-     * Please see DefaultPolicyBroker.processEvent for additional info.
+     * Please see MyBroker.processEvent for additional info.
      */
     broker.submitMapperList(asJava[MyCloudlet](mappers))
     broker.submitReducerList(asJava[MyCloudlet](reducers))
@@ -262,7 +262,7 @@ object Simulation2b {
 
     /*
     * This method is a custom implementation that aims at simulating the disk speed of a certain host.
-    * Please see related extended class (MyHost.java and override method in DefaultPolicyBroker.java)
+    * Please see related extended class (MyHost.java and override method in MyBroker.java)
      */
     host.setDiskSpeed(diskSpeed)
 
@@ -325,11 +325,11 @@ object Simulation2b {
   }
 
   /**
-   * This method initializes an instance of DefaultPolicyBroker.
+   * This method initializes an instance of MyBroker.
    * @return
    */
-  def createBroker() : DefaultPolicyBroker = {
-    val broker = new DefaultPolicyBroker("Broker")
+  def createBroker() : MyBroker = {
+    val broker = new MyBroker("Broker")
     return broker
   }
 
@@ -442,7 +442,7 @@ object Simulation2b {
    */
   private def writeResultsToCSV(list: List[MyCloudlet]) : Unit = {
 
-    val csvWriter = new FileWriter("simulation2b.csv")
+    val csvWriter = new FileWriter("simulation2low.csv")
     csvWriter.append("CloudletId")
     csvWriter.append(",")
     csvWriter.append("Status")

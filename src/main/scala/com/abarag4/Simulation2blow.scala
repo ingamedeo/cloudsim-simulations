@@ -38,9 +38,9 @@ import scala.jdk.javaapi.CollectionConverters.{asJava, asScala}
  *
  */
 
-object Simulation2b {
+object Simulation2blow {
 
-  val SIM = "simulation2"
+  val SIM = "simulation2low"
   
   //Initialize Config and Logger objects from 3rd party libraries
   val conf: Config = ConfigFactory.load(SIM+".conf")
@@ -442,7 +442,7 @@ object Simulation2b {
    */
   private def writeResultsToCSV(list: List[MyCloudlet]) : Unit = {
 
-    val csvWriter = new FileWriter("simulation2b.csv")
+    val csvWriter = new FileWriter("simulation2blow.csv")
     csvWriter.append("CloudletId")
     csvWriter.append(",")
     csvWriter.append("Status")
