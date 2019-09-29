@@ -16,6 +16,7 @@ import org.cloudbus.cloudsim.NetworkTopology
 import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter
 import org.cloudbus.cloudsim.power.{PowerHost, PowerHostUtilizationHistory}
 import org.cloudbus.cloudsim.power.models.PowerModelLinear
+import java.io.FileWriter
 
 /**
  * This is the first Simulation provided.
@@ -413,6 +414,55 @@ object Simulation1 {
 
   }
 
+  /**
+   *
+   * @param cloudlet Current Cloudlet
+   * @param csvWriter FileWriter object used in order to write to CSV the results
+   */
+  private def writeCSVLine(cloudlet: MyCloudlet, csvWriter: FileWriter) : Unit = {
+    val costPerSec = cloudlet.getCostPerSec(cloudlet.getResourceId) *  (cloudlet.getActualCPUTime()+cloudlet.getDelay)
+    csvWriter.append(cloudlet.getCloudletId+","+"SUCCESS"+","+cloudlet.getResourceId+","+cloudlet.getVmId+","+dft.format(cloudlet.getActualCPUTime)+","+dft.format(cloudlet.getExecStartTime)+","+dft.format(cloudlet.getFinishTime)+","+dft.format(cloudlet.getSubmissionTime)+","+dft.format(costPerSec)+","+cloudlet.getType+","+cloudlet.getHost.getId);
+    csvWriter.append("\n");
+  }
+
+  /**
+   *
+   * This method generates a .csv file with the simulation results
+   *
+   * @param list Cloudlet list
+   */
+  private def writeResultsToCSV(list: List[MyCloudlet]) : Unit = {
+
+    val csvWriter = new FileWriter("simulation1.csv")
+    csvWriter.append("CloudletId")
+    csvWriter.append(",")
+    csvWriter.append("Status")
+    csvWriter.append(",")
+    csvWriter.append("DatacenterId")
+    csvWriter.append(",")
+    csvWriter.append("VmId")
+    csvWriter.append(",")
+    csvWriter.append("Time")
+    csvWriter.append(",")
+    csvWriter.append("StartTime")
+    csvWriter.append(",")
+    csvWriter.append("FinishTime")
+    csvWriter.append(",")
+    csvWriter.append("SubTime")
+    csvWriter.append(",")
+    csvWriter.append("TotalCost")
+    csvWriter.append(",")
+    csvWriter.append("CloudletType")
+    csvWriter.append(",")
+    csvWriter.append("HostId")
+
+    //Write list to CSV
+    list.foreach(e => writeCSVLine(e, csvWriter))
+
+    csvWriter.flush()
+    csvWriter.close()
+  }
+
   private def printCloudletList(list: List[MyCloudlet]): Unit = {
     LOG.info("");
     LOG.info("========== OUTPUT (CloudletSchedulerTimeShared) ==========")
@@ -422,5 +472,8 @@ object Simulation1 {
     list.foreach(printSingleResultLine)
 
     LOG.info("Total cost: "+computeTotalCost(list))
+
+    //Now writing results to CSV file
+    writeResultsToCSV(list)
   }
 }
