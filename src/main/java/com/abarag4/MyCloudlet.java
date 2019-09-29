@@ -22,6 +22,7 @@ public class MyCloudlet extends Cloudlet {
     private Type type = null;
     private Host host = null;
     private List<Integer> associatedMappers = null;
+    private Double delay = null;
 
     public MyCloudlet(int cloudletId, long cloudletLength, int pesNumber, long cloudletFileSize, long cloudletOutputSize, UtilizationModel utilizationModelCpu, UtilizationModel utilizationModelRam, UtilizationModel utilizationModelBw) {
         super(cloudletId, cloudletLength, pesNumber, cloudletFileSize, cloudletOutputSize, utilizationModelCpu, utilizationModelRam, utilizationModelBw);
@@ -61,5 +62,13 @@ public class MyCloudlet extends Cloudlet {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public Double getDelay() {
+        return delay;
+    }
+
+    public void setDelay(Double delay) {
+        this.delay = delay;
     }
 }

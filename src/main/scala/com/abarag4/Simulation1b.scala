@@ -3,6 +3,7 @@ package com.abarag4
 import java.text.DecimalFormat
 import java.util.Calendar
 
+import com.abarag4.Simulation1.{LOG, computeTotalCost}
 import com.typesafe.config.{Config, ConfigFactory}
 import org.cloudbus.cloudsim.core.CloudSim
 import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter
@@ -13,7 +14,7 @@ import org.slf4j.{Logger, LoggerFactory}
 import scala.jdk.javaapi.CollectionConverters.{asJava, asScala}
 
 /**
- * This is the second Simulation provided.
+ * This is the first Simulation provided with the default cloudlet/VM allocation policy.
  *
  * All simulations show a run of a Map/Reduce algorithm implementation as further detailed in the README.md file.
  *
@@ -37,9 +38,9 @@ import scala.jdk.javaapi.CollectionConverters.{asJava, asScala}
  *
  */
 
-object Simulation2 {
+object Simulation1b {
 
-  val SIM = "simulation2";
+  val SIM = "simulation1";
   
   //Initialize Config and Logger objects from 3rd party libraries
   val conf: Config = ConfigFactory.load(SIM+".conf")
@@ -94,7 +95,7 @@ object Simulation2 {
     /*
      * This is a simulation specific thing.
      * Two different types of Cloudlets can be submitted to the broker. Those are handled completely differently.
-     * Please see MyBroker.processEvent for additional info.
+     * Please see DefaultPolicyBroker.processEvent for additional info.
      */
     broker.submitMapperList(asJava[MyCloudlet](mappers))
     broker.submitReducerList(asJava[MyCloudlet](reducers))
@@ -261,7 +262,7 @@ object Simulation2 {
 
     /*
     * This method is a custom implementation that aims at simulating the disk speed of a certain host.
-    * Please see related extended class (MyHost.java and override method in MyBroker.java)
+    * Please see related extended class (MyHost.java and override method in DefaultPolicyBroker.java)
      */
     host.setDiskSpeed(diskSpeed)
 
@@ -296,7 +297,7 @@ object Simulation2 {
     val vmm = conf.getString(SIM+".vm.vmm") // VMM name
 
     // create VM, the CloudletSchedulerTimeShared policy
-    val vm = new Vm(startId, userId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerSpaceShared)
+    val vm = new Vm(startId, userId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared)
     LOG.info("VM"+startId+" (mips="+mips+",size="+size+",ram="+ram+",bw="+bw+",numCPUS="+pesNumber+") created")
 
     //Add VM to list
@@ -324,11 +325,11 @@ object Simulation2 {
   }
 
   /**
-   * This method initializes an instance of MyBroker.
+   * This method initializes an instance of DefaultPolicyBroker.
    * @return
    */
-  def createBroker() : MyBroker = {
-    val broker = new MyBroker("Broker")
+  def createBroker() : DefaultPolicyBroker = {
+    val broker = new DefaultPolicyBroker("Broker")
     return broker
   }
 

@@ -125,7 +125,7 @@ object Simulation1 {
     //Compute total simulation time
     val endTime = System.currentTimeMillis
     val totalTimeTaken = (endTime - startTime) / 1000.0
-    LOG.info("The total time taken for the simulation: " + totalTimeTaken + " s.")
+    //LOG.info("The total time taken for the simulation: " + totalTimeTaken + " s.")
   }
 
   /**
@@ -375,7 +375,7 @@ object Simulation1 {
   private def printSingleResultLine(cloudlet: MyCloudlet): Unit = {
     if (cloudlet.getCloudletStatus == Cloudlet.SUCCESS) {
 
-      val costPerSec = cloudlet.getCostPerSec(cloudlet.getResourceId) *  cloudlet.getActualCPUTime()
+      val costPerSec = cloudlet.getCostPerSec(cloudlet.getResourceId) *  (cloudlet.getActualCPUTime()+cloudlet.getDelay)
       val ramUtilization = cloudlet.getUtilizationOfRam(0)
       //LOG.info("costPerSec: "+costPerSec)
       //LOG.info("ramUtilization: "+ramUtilization)
@@ -391,6 +391,28 @@ object Simulation1 {
     }
   }
 
+  /**
+   *
+   * This method computes the total cost of the simulation.
+   * It takes into account the fact that we also pay for cloudlets not yet started, but we are paying for during data transfer.
+   *
+   * @param list Cloudlet list
+   * @return Total simulation cost
+   */
+  private def computeTotalCost(list: List[MyCloudlet]): Double = {
+
+    if (list.isEmpty) {
+      return 0.0
+    }
+
+    val cloudlet = list.last
+    val costPerSec = cloudlet.getCostPerSec(cloudlet.getResourceId) *  (cloudlet.getActualCPUTime()+cloudlet.getDelay)
+    val newList = list.splitAt(list.size-2)._1
+
+    return costPerSec + computeTotalCost(newList)
+
+  }
+
   private def printCloudletList(list: List[MyCloudlet]): Unit = {
     LOG.info("");
     LOG.info("========== OUTPUT (CloudletSchedulerTimeShared) ==========")
@@ -398,5 +420,7 @@ object Simulation1 {
 
     //Call list item print function (functional programming technique)
     list.foreach(printSingleResultLine)
+
+    LOG.info("Total cost: "+computeTotalCost(list))
   }
 }

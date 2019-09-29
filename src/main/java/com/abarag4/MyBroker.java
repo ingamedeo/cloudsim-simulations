@@ -117,6 +117,8 @@ public class MyBroker extends DatacenterBroker {
                     ((MyCloudlet) cloudlet).setHost(vm.getHost());
                     cloudlet.setVmId(vm.getId());
                 }
+
+                ((MyCloudlet) cloudlet).setDelay(cloudlet.getCloudletFileSize()*diskSpeed);
             }
 
             send(getVmsToDatacentersMap().get(vm.getId()), cloudlet.getCloudletFileSize()*diskSpeed, CloudSimTags.CLOUDLET_SUBMIT, cloudlet);
@@ -220,7 +222,7 @@ public class MyBroker extends DatacenterBroker {
                                 /*
                                 * If at least 2 mappers are done and on the *same* host, we can submit a reducer for them.
                                 * */
-                                if (allocHost.get(host).size()>=2) {
+                                if (allocHost.get(host).size()>=3) {
                                     LOG.debug("--> Now submitting reducer for MAPPERS: "+mapperIds + ", countRet is now: "+ countRet);
                                     readyReducer.setAssociatedMappers(mapperIds);
 

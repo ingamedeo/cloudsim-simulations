@@ -4,16 +4,16 @@ import java.text.DecimalFormat
 import java.util.Calendar
 
 import com.typesafe.config.{Config, ConfigFactory}
+import org.cloudbus.cloudsim._
 import org.cloudbus.cloudsim.core.CloudSim
 import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter
 import org.cloudbus.cloudsim.provisioners.{BwProvisionerSimple, PeProvisionerSimple, RamProvisionerSimple}
-import org.cloudbus.cloudsim._
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.jdk.javaapi.CollectionConverters.{asJava, asScala}
 
 /**
- * This is the second Simulation provided.
+ * This is the second Simulation provided with the default cloudlet/VM allocation policy.
  *
  * All simulations show a run of a Map/Reduce algorithm implementation as further detailed in the README.md file.
  *
@@ -37,7 +37,7 @@ import scala.jdk.javaapi.CollectionConverters.{asJava, asScala}
  *
  */
 
-object Simulation2 {
+object Simulation2b {
 
   val SIM = "simulation2";
   
@@ -94,7 +94,7 @@ object Simulation2 {
     /*
      * This is a simulation specific thing.
      * Two different types of Cloudlets can be submitted to the broker. Those are handled completely differently.
-     * Please see MyBroker.processEvent for additional info.
+     * Please see DefaultPolicyBroker.processEvent for additional info.
      */
     broker.submitMapperList(asJava[MyCloudlet](mappers))
     broker.submitReducerList(asJava[MyCloudlet](reducers))
@@ -261,7 +261,7 @@ object Simulation2 {
 
     /*
     * This method is a custom implementation that aims at simulating the disk speed of a certain host.
-    * Please see related extended class (MyHost.java and override method in MyBroker.java)
+    * Please see related extended class (MyHost.java and override method in DefaultPolicyBroker.java)
      */
     host.setDiskSpeed(diskSpeed)
 
@@ -324,11 +324,11 @@ object Simulation2 {
   }
 
   /**
-   * This method initializes an instance of MyBroker.
+   * This method initializes an instance of DefaultPolicyBroker.
    * @return
    */
-  def createBroker() : MyBroker = {
-    val broker = new MyBroker("Broker")
+  def createBroker() : DefaultPolicyBroker = {
+    val broker = new DefaultPolicyBroker("Broker")
     return broker
   }
 
