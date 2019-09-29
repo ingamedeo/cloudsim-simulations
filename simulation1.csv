@@ -1,4 +1,5 @@
-CloudletId,Status,DatacenterId,VmId,Time,StartTime,FinishTime,SubTime,TotalCost,CloudletType,HostId20,SUCCESS,3,20,0.8,3.2,4,3.2,11.4,MAPPER,11
+CloudletId,Status,DatacenterId,VmId,Time,StartTime,FinishTime,SubTime,TotalCost,CloudletType,HostId
+20,SUCCESS,3,20,0.8,3.2,4,3.2,11.4,MAPPER,11
 70,SUCCESS,3,20,0.8,3.2,4,3.2,11.4,MAPPER,11
 21,SUCCESS,3,21,0.8,3.2,4,3.2,11.4,MAPPER,12
 71,SUCCESS,3,21,0.8,3.2,4,3.2,11.4,MAPPER,12

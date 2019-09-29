@@ -464,6 +464,7 @@ object Simulation2 {
     csvWriter.append("CloudletType")
     csvWriter.append(",")
     csvWriter.append("HostId")
+    csvWriter.append("\n")
 
     //Write list to CSV
     list.foreach(e => writeCSVLine(e, csvWriter))
