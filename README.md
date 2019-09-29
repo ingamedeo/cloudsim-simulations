@@ -117,9 +117,11 @@ Therefore, **the policy will try to allocate a reducer on the same host of the m
 Delving deeper, the proposed implementation waits for at least two mappers to finish executing and then checks whether they run on the same host, if so, allocates a new reducer on that host on any available VM.
 Otherwise, these mappers are queued and a new iteration is performed; when the next two mappers finish running, it will now check if at least 2 among the 4 mappers have run on the same host.
 
+###### Limitations
 *The policy in ineffective if all mappers are run on different hosts*, furthermore, once all mappers have finished executing the remaining ones must be scheduled anyways, **irrespective of their host assignment**, this is suboptimal and therefore the delay is not avoided in this case.
 
 Please see classes MyBroker.java and MyCloudlet.java.
+
 Note: Please note that the number of reducers specified in the configuration file is only a maximum number and does not imply that all reducers will be scheduled. This is due to the fact that is multiple mappers all run on the same host a fewer number of reducers will be run. *This is expected behaviour*.
 
 ## Analysis of results
@@ -130,8 +132,44 @@ When making comparisons across different scenarios, one usually wants to focus o
 This helps understand how a specific parameter change on the input side produces output changes; in other words, we build an input/output relation.
 This is the approch followed as part of this homework.
 
-Four main simulations are present: Simulation1 and Simulation2 use the Data Locality policy described above, while Simulation1b and Simulation2b have the same configutation of simulation 1 and 2 respectively, but with the default policy.
+Four main simulations are present: Simulation1 and Simulation2 use the Data Locality policy described above, while Simulation1b and Simulation2b have the same configuration of simulation 1 and 2 respectively, but with the default policy.
 Furthermore, Simulation1 uses a TimeShared cloudlet allocation policy, while Simulation2 uses a SpaceShared allocation policy.
 
+#### Metric: cost
+
+When comparing the simulation performance it is relevant to choose an appropriate metric, it this context, the monetary cost is the chosen metric for the comparison.
+Indeed, this is a key factor of cloud computing and can effectively guide our choice of a cloud architecture vs. another.
+
+The cost is computed as the cost per second multiplied by the actual run time of the cloudlet plus the time taken to transfer data between the cloudlets:
+**cost_per_sec * (cpu_time + delay_data_loading)**
 
 
+The total cost of the simulations is as follows:
+
+- Simulation1: 774,69 cost units
+- Simulation1b: 927,25 cost units
+- Simulation2: 640,20 cost units
+- Simulation2b: 816,00 cost units
+
+The generated cloudlet schedule along with each individual cost is reported in the respective .csv files. (simulation1.csv,simulation1b.csv, simulation2.csv, simulation2b.csv)
+
+Just by looking at the total cost number we immediately notice that Simulation2 yields the lowest cost across all the simulations; in particular both Simulation2 and Simulation2b which use a SpaceShared policy end up being more efficient than Simulation1 and Simulation1b.
+
+###### SpaceShared vs TimeShared
+
+One can look at the individual costs of each cloudlet, it can be immediately noticed that costs in the TimeShared environment are higher than in the SpaceShared one; this is due to the fact that whenever there are not enough VMs to run all the cloudlets independently, the TimeShared policy allocates cloudlets on the same VM and runs than concurrently, therefore yelding to a higher cost.
+We can think of it as if the computational resources (i.e. CPUs) are used by the two cloudlets alternatively. (shared CPUs)
+
+###### DataLocality policy vs default policy
+
+Another pattern that can be consistently found in the results is that the cost of the simulations in which the data locality policy is applied is lower than those in which the default Cloudsim policy is used. This is a key factor.
+
+This can be easily explained:
+In our simulation we assume that whenever the mapper(s) and the respective reducer (the one that will further process the output of the mapper) are run on the same host, no data transfer is required between the two and therefore we don't incur in any delay.
+On the other hand, when mapper(s) and reducer run on different hosts, we need to transfer data between, which, due to the limited disk speed, takes some time. (delay is present)
+
+It is therefore reasonable - and this is the point of the whole implementation - to observe lower execution times (and lower costs) when the data locality policy is used as the default policy just allocates cloudlets on the first available VM. (Please see CloudSim source code for further details)
+
+
+
+## Map/Reduce architecture
