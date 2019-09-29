@@ -38,10 +38,10 @@ In this section the project structure is described.
 
 The following Simulations are provided:
 
-- Simulation1
-- Simulation2
-
-Further details below.
+- Simulation1: Simulation with Data Locality policy and Time Sharing.
+- Simulation1b: Simulation *without* Data Locality policy and Time Sharing.
+- Simulation2: Simulation with Data Locality policy and Space Sharing.
+- Simulation2b: Simulation *without* Data Locality policy and Space Sharing.
 
 #### Tests
 
@@ -81,6 +81,18 @@ Configuration options for the following entities are provided:
 - Cloudlet
 
 Those are valid in the context of a certain simulation.
+
+Relevant parameters that are the same across all the simulations provided:
+
+- Number of users: 1
+- Number of VMs: 50
+- Number of Datacenters: 2
+- Number of Mappers: 120
+- Number of hosts in datacenter 0: 5
+- Number of hosts in datacenter 1: 50
+- Max Number of Reducers: 120
+- Host disk delay (diskSpeed): 0.01 seconds (100 MB/s -> 1/100 seconds to transfer 1 MB of data)
+- Cloudlet file size in/out: 300 MB
 
 ## Implemented policy
 In this section the implemented policy is described in detail.
