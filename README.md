@@ -97,6 +97,7 @@ Relevant parameters that are the same across all the simulations provided except
 - Max Number of Reducers: 120
 - Host disk delay (diskSpeed): 0.01 seconds (100 MB/s -> 1/100 seconds to transfer 1 MB of data)
 - Cloudlet file size in/out: 300 MB
+- Cloudlet length: 1000
 
 Relevant parameters that are the same for Simulation2low and Simulation2blow:
 
@@ -109,6 +110,7 @@ Relevant parameters that are the same for Simulation2low and Simulation2blow:
 - Max Number of Reducers: **12**
 - Host disk delay (diskSpeed): 0.01 seconds (100 MB/s -> 1/100 seconds to transfer 1 MB of data)
 - Cloudlet file size in/out: 300 MB
+- Cloudlet length: 1000
 
 ## Implemented policy
 In this section the implemented policy is described in detail.
@@ -193,6 +195,13 @@ It is therefore reasonable - and this is the point of the whole implementation -
 *Please see Gantt charts (/charts) that show the schedules produced when using the Data Locality policy vs when not using it.*
 It is clear how the delay in submitting the reducers (Green) is significantly lower when using the policy, given that no data transfer is necessary before the reduce job can be started.
 Mappers are reported in red in the charts.
+
+#### CPU usage
+
+In the scenario being analyzed the CPU is the bottleneck of the system when we don't incur in a disk loading delay. Also, we assume that after the data loading phase, data can be accessed instantly.
+This can be easily proved by looking at the equation that links the cloudlet length parameter and the mips of the VM on which the cloudlet runs, by dividing one by the other we obtain the execution time shown in the simulation results.
+
+Therefore, CPU usage (given that it's the bottleneck) is always 100%.
 
 ## Map/Reduce architecture
 
