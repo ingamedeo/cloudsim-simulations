@@ -44,6 +44,8 @@ The following Simulations are provided:
 - Simulation1b: Simulation *without* Data Locality policy and Time Sharing.
 - Simulation2: Simulation with Data Locality policy and Space Sharing.
 - Simulation2b: Simulation *without* Data Locality policy and Space Sharing.
+- Simulation2low: Simulation with Data Locality policy, Space Sharing and reduced number of VMs, Hosts.
+- Simulation2blow: Simulation *without* Data Locality policy, Space Sharing and reduced number of VMs, Hosts.
 
 #### Tests
 
@@ -84,7 +86,7 @@ Configuration options for the following entities are provided:
 
 Those are valid in the context of a certain simulation.
 
-Relevant parameters that are the same across all the simulations provided:
+Relevant parameters that are the same across all the simulations provided except Simulation2low and Simulation2blow:
 
 - Number of users: 1
 - Number of VMs: 50
@@ -93,6 +95,18 @@ Relevant parameters that are the same across all the simulations provided:
 - Number of hosts in datacenter 0: 5
 - Number of hosts in datacenter 1: 50
 - Max Number of Reducers: 120
+- Host disk delay (diskSpeed): 0.01 seconds (100 MB/s -> 1/100 seconds to transfer 1 MB of data)
+- Cloudlet file size in/out: 300 MB
+
+Relevant parameters that are the same for Simulation2low and Simulation2blow:
+
+- Number of users: 1
+- Number of VMs: **10**
+- Number of Datacenters: 2
+- Number of Mappers: **12**
+- Number of hosts in datacenter 0: 5
+- Number of hosts in datacenter 1: **5**
+- Max Number of Reducers: **12**
 - Host disk delay (diskSpeed): 0.01 seconds (100 MB/s -> 1/100 seconds to transfer 1 MB of data)
 - Cloudlet file size in/out: 300 MB
 
@@ -137,6 +151,8 @@ This is the approch followed as part of this homework.
 Four main simulations are present: Simulation1 and Simulation2 use the Data Locality policy described above, while Simulation1b and Simulation2b have the same configuration of simulation 1 and 2 respectively, but with the default policy.
 Furthermore, Simulation1 uses a TimeShared cloudlet allocation policy, while Simulation2 uses a SpaceShared allocation policy.
 
+Two additional simulations Simulation2low and Simulation2blow show the performance in a context with a reduced number of VMs and Hosts.
+
 #### Metric: cost
 
 When comparing the simulation performance it is relevant to choose an appropriate metric, it this context, the monetary cost is the chosen metric for the comparison.
@@ -146,7 +162,7 @@ The cost is computed as the cost per second multiplied by the actual run time of
 **cost_per_sec * (cpu_time + delay_data_loading)**
 
 
-The total cost of the simulations is as follows:
+The total cost of the main simulations is as follows:
 
 - Simulation1: 774,69 cost units
 - Simulation1b: 927,25 cost units
@@ -156,6 +172,8 @@ The total cost of the simulations is as follows:
 The generated cloudlet schedule along with each individual cost is reported in the respective .csv files. (simulation1.csv,simulation1b.csv, simulation2.csv, simulation2b.csv)
 
 Just by looking at the total cost number we immediately notice that Simulation2 yields the lowest cost across all the simulations; in particular both Simulation2 and Simulation2b which use a SpaceShared policy end up being more efficient than Simulation1 and Simulation1b.
+
+Identical patterns are found for *Simulation2low* and *Simulation2blow*.
 
 ###### SpaceShared vs TimeShared
 
@@ -171,6 +189,10 @@ In our simulation we assume that whenever the mapper(s) and the respective reduc
 On the other hand, when mapper(s) and reducer run on different hosts, we need to transfer data between, which, due to the limited disk speed, takes some time. (delay is present)
 
 It is therefore reasonable - and this is the point of the whole implementation - to observe lower execution times (and lower costs) when the data locality policy is used as the default policy just allocates cloudlets on the first available VM. (Please see CloudSim source code for further details)
+
+*Please see Gantt charts (/charts) that show the schedules produced when using the Data Locality policy vs when not using it.*
+It is clear how the delay in submitting the reducers (Green) is significantly lower when using the policy, given that no data transfer is necessary before the reduce job can be started.
+Mappers are reported in red in the charts.
 
 ## Map/Reduce architecture
 
