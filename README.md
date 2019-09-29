@@ -121,3 +121,17 @@ Otherwise, these mappers are queued and a new iteration is performed; when the n
 
 Please see classes MyBroker.java and MyCloudlet.java.
 Note: Please note that the number of reducers specified in the configuration file is only a maximum number and does not imply that all reducers will be scheduled. This is due to the fact that is multiple mappers all run on the same host a fewer number of reducers will be run. *This is expected behaviour*.
+
+## Analysis of results
+
+In this section the results of the different simulations are reported and analyzed.
+
+When making comparisons across different scenarios, one usually wants to focus on a specific parameter (instead of making multiple changes), so that the change in the output can be linked to the single change in the input.
+This helps understand how a specific parameter change on the input side produces output changes; in other words, we build an input/output relation.
+This is the approch followed as part of this homework.
+
+Four main simulations are present: Simulation1 and Simulation2 use the Data Locality policy described above, while Simulation1b and Simulation2b have the same configutation of simulation 1 and 2 respectively, but with the default policy.
+Furthermore, Simulation1 uses a TimeShared cloudlet allocation policy, while Simulation2 uses a SpaceShared allocation policy.
+
+
+
