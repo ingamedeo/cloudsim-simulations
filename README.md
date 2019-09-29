@@ -4,9 +4,11 @@
 
 ## Introduction
 
-This homework consists in creating different simulations on multiple datacenters and analyze the results obtained.
+This homework consists in creating different simulations on multiple datacenters and analyze the results obtained; the simulations are focused on the map/reduce architecture.
+However, the policy implemented can be extended to another types of scenario by making few adjustments.
 
 The simulation code has been written in Scala and can be compiled using SBT.
+Multiple classes on the Cloudsim framework have been modified and extended to provide extra functionality.
 
 ## Installation instructions
 This section contains the instructions on how to run the simulations implemented as part of this homework, the recommended procedure is to use IntellJ IDEA with the Scala plugin installed.
@@ -170,6 +172,23 @@ On the other hand, when mapper(s) and reducer run on different hosts, we need to
 
 It is therefore reasonable - and this is the point of the whole implementation - to observe lower execution times (and lower costs) when the data locality policy is used as the default policy just allocates cloudlets on the first available VM. (Please see CloudSim source code for further details)
 
-
-
 ## Map/Reduce architecture
+
+In this section the chosen map/reduce architecture is briefly explained.
+
+Key details:
+
+- Chunks of equal size
+- 2-layer architecture (mapper + reducer layer)
+- Dynamic number of reducers
+
+Firstly, data is split among equal chunks of 300 MB each; each individual chunk is then fed to a mapper cloudlet.
+The mapper generates an intermediate result which needs to be processed by a reducer.
+
+The architecture prescribes that reducers shall wait for at least two mappers to finish executing before starting to work on their outputs, however, in order to guarantee data locality principles, mappers can be queued and their output left in the intermediate state for longer.
+(For more details on how this works see the Policy implementation section)
+
+Furthermore, the number of reducers is not fixed, but is adjusted at runtime. (the user only provides a maximum number of reducers they wish to run)
+
+In principle, a reducer is submitted every two mappers, but less reducers may be submitted during the final stage when mappers for which data locality policies can't be applied are handled.
+
