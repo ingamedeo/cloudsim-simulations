@@ -1,0 +1,10 @@
+Hi Amedeo,
+
+Your simulations are well configured and are neatly modeled. 
+You have same set of methods across the simualations, These could have been moved to a single util/lib and invoked across simulations.
+Besides that, Code is nicely documented and is readable.
+
+Your total grade is 7% + 2% = 9% 
+
+Thank you,
+Mohammed Siddiq
